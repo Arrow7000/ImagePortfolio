@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ImagePortfolio", "ImagePortfolio\ImagePortfolio.fsproj", "{48497DA5-0B27-46EC-A8E2-A63D888FF653}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ImagePortfolio.Tests", "ImagePortfolio.Tests\ImagePortfolio.Tests.fsproj", "{FAC36323-B23A-4CE9-B9A0-85D9427F4F27}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{48497DA5-0B27-46EC-A8E2-A63D888FF653}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48497DA5-0B27-46EC-A8E2-A63D888FF653}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48497DA5-0B27-46EC-A8E2-A63D888FF653}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48497DA5-0B27-46EC-A8E2-A63D888FF653}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAC36323-B23A-4CE9-B9A0-85D9427F4F27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAC36323-B23A-4CE9-B9A0-85D9427F4F27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAC36323-B23A-4CE9-B9A0-85D9427F4F27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAC36323-B23A-4CE9-B9A0-85D9427F4F27}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BCA9D62F-E0D1-4F8B-B7FF-7CEAC1F58F1B}
+	EndGlobalSection
+EndGlobal
