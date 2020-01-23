@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="ImagesDomain.fs" />
+    <Compile Include="LocalImages.fs" />
+    <Compile Include="S3Images.fs" />
+    <Compile Include="SyncImages.fs" />
+    <Compile Include="ImageConversion.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.3.110.14" />
+    <PackageReference Include="FSharp.Management" Version="0.4.5" />
+    <PackageReference Include="FSharp.Text.RegexProvider" Version="2.1.0" />
+    <PackageReference Include="Veldrid.ImageSharp" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ImagePortfolio\ImagePortfolio.fsproj" />
+  </ItemGroup>
+
+</Project>
