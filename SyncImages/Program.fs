@@ -1,14 +1,13 @@
-﻿open System
+﻿open System.IO
 
 open LocalImages
 open S3Images
 open SyncImages
-
+open ImageConversion
 
 [<EntryPoint>]
 let main argv =
     async {
-
         let! s3imgs = getAllS3Imgs ()
         
         let! results =

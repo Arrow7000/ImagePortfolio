@@ -1,7 +1,6 @@
 ﻿module LocalImages
 
 open System.IO
-open FSharp.Management
 open FSharp.Text.RegexProvider
 
 

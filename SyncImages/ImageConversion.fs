@@ -1,23 +1,23 @@
 ﻿module ImageConversion
 
 
-open LocalImages
-
-
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.Processing
 
 open System.IO
 
-let resizeImg maxSideSize (path : string) =
+let resizeImg maxSideSizeOpt (path : string) =
     use image = Image.Load(path)
 
     let (newWidth,newHeight) =
         let w = image.Width
         let h = image.Height
-        if w > h then
-            maxSideSize, h / w * maxSideSize
-        else w / h * maxSideSize, maxSideSize
+        match maxSideSizeOpt with
+        | Some maxSideSize ->
+            if w > h then
+                maxSideSize, h / w * maxSideSize
+            else w / h * maxSideSize, maxSideSize
+        | None -> w, h
 
     use copy = image.Clone()
 

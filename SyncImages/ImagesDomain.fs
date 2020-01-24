@@ -1,7 +1,7 @@
 ﻿[<AutoOpen>]
 module ImagesDomain
 
-open System.IO
+open ImageConversion
 
 [<Literal>]
 let jpg = "jpg"
@@ -28,6 +28,7 @@ type Size =
         | _ as str ->
             failwithf "'%s' doesn't match any of the allowed sizes" str
 
+/// Unused for now
 type RawExtension =
     | RAF
 
@@ -35,12 +36,6 @@ type RawExtension =
         function
         | "RAF" | "raf" -> RAF
         | _ as str -> failwithf "%s is not a currently recognised raw image file extension" str
-
-
-
-
-
-
 
 
 let makeSizeMap orig px2k px1k px4c =
@@ -66,15 +61,13 @@ type S3Image =
 
 
 type ToUpload =
-    //| ToUpload of name : string * fullPath : string * size : Size
     | ToUpload of LocalImg * size : Size
 
-    member this.localPath =
-        let (ToUpload (localImg,_)) = this
-        localImg.FullPath
+    member this.stream =
+        let (ToUpload (localImg,size)) = this
+        resizeImg size.numSuffix localImg.FullPath
 
     member this.uploadStr =
-        //let (ToUpload (name,fullPath,size)) = this
         let (ToUpload (localImg,size)) = this
         let sizeSuffix =
             match size.numSuffix with

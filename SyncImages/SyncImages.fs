@@ -1,7 +1,7 @@
 ﻿module SyncImages
 
-open LocalImages
-
+open Amazon.S3.Model
+open S3Images
 
 
 let groupS3Imgs s3Imgs =
@@ -72,19 +72,19 @@ let getToUploads syncImgs =
 
 
 
-
-open Amazon.S3.Model
-open S3Images
-
 let uploadFile (toUpload : ToUpload) =
     let req = new PutObjectRequest()
     req.BucketName <- bucketName
     req.Key <- toUpload.uploadStr
-    req.FilePath <- toUpload.localPath
+    req.InputStream <- toUpload.stream
 
     client.PutObjectAsync req
     |> Async.AwaitTask
 
 
 let uploadAllFiles =
-    List.map uploadFile >> Async.Parallel >> Async.map Array.toList
+    List.map uploadFile
+    >> Async.Parallel
+    >> Async.map
+        (Array.toList >> List.map (fun obj -> obj.ResponseMetadata.RequestId))
+
