@@ -1,21 +1,22 @@
-﻿open System.IO
-
-open LocalImages
+﻿open LocalImages
 open S3Images
 open SyncImages
-open ImageConversion
+open Api
 
 [<EntryPoint>]
 let main argv =
     async {
         let! s3imgs = getAllS3Imgs ()
         
-        let! results =
-            getSyncImgs localImages s3imgs
+        let syncImgs = getSyncImgs localImages s3imgs
+
+        let! _ =
+            syncImgs
             |> getToUploads
             |> uploadAllFiles
 
-        printf "%A" results
+        printfn "%A" (makeInfo syncImgs |> serialise)
+
     } |> Async.RunSynchronously
 
     0 // return an integer exit code

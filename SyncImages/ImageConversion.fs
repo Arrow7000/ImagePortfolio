@@ -1,10 +1,9 @@
 ﻿module ImageConversion
 
 
+open System.IO
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.Processing
-
-open System.IO
 
 let resizeImg maxSideSizeOpt (path : string) =
     use image = Image.Load(path)

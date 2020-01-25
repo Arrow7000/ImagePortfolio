@@ -6,8 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="S3Setup.fs" />
     <Compile Include="ImageConversion.fs" />
     <Compile Include="ImagesDomain.fs" />
+    <Compile Include="Api.fs" />
     <Compile Include="LocalImages.fs" />
     <Compile Include="S3Images.fs" />
     <Compile Include="SyncImages.fs" />
@@ -16,6 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.3.110.14" />
+    <PackageReference Include="FSharp.Json" Version="0.4.0" />
     <PackageReference Include="FSharp.Management" Version="0.4.5" />
     <PackageReference Include="FSharp.Text.RegexProvider" Version="2.1.0" />
     <PackageReference Include="Veldrid.ImageSharp" Version="4.7.0" />

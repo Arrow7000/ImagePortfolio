@@ -12,7 +12,7 @@ type Size =
     | Px1000
     | Px400
 
-    member this.numSuffix =
+    member this.size =
         match this with
         | Original -> None
         | Px2000 -> Some 2000
@@ -45,8 +45,6 @@ let makeSizeMap orig px2k px1k px4c =
     | Px1000 -> px1k
     | Px400 -> px4c
 
-let allSizes = [ Original; Px2000; Px1000; Px400 ]
-
 
 type LocalImg =
     { LocalName : string // name without file extension, e.g. "DSC01234"
@@ -59,21 +57,23 @@ type S3Image =
       Size      : Size }
 
 
+let s3Path name (size : Size) ext =
+    let sizeSuffix =
+        match size.size with
+        | None -> ""
+        | Some n -> sprintf "-%i" n
+    sprintf "%s/%s%s.%s" name name sizeSuffix ext
 
 type ToUpload =
     | ToUpload of LocalImg * size : Size
 
     member this.stream =
         let (ToUpload (localImg,size)) = this
-        resizeImg size.numSuffix localImg.FullPath
+        resizeImg size.size localImg.FullPath
 
     member this.uploadStr =
         let (ToUpload (localImg,size)) = this
-        let sizeSuffix =
-            match size.numSuffix with
-            | None -> ""
-            | Some n -> sprintf "-%i" n
-        sprintf "%s/%s%s.%s" localImg.LocalName localImg.LocalName sizeSuffix localImg.Extension
+        s3Path localImg.LocalName size localImg.Extension
 
 
 type UploadStatus =

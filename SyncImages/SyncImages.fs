@@ -1,7 +1,7 @@
 ﻿module SyncImages
 
 open Amazon.S3.Model
-open S3Images
+open S3Setup
 
 
 let groupS3Imgs s3Imgs =
@@ -61,7 +61,7 @@ let getToUploads syncImgs =
     syncImgs
     |> List.collect
         (fun { UploadGetter = getter } ->
-            List.map getter allSizes
+            List.map getter Api.allSizes
             |> List.choose
                 (function
                  | Uploaded _ -> None
