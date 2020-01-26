@@ -8,11 +8,15 @@ A tool for deploying and displaying my photography portfolio.
 
 - [x] Creating photos in multiple sizes based on need
 - [x] Syncing all images to S3
+- [ ] Set up pipeline so that sync and upload happens on each push
+    - Potentially use GitHub Actions
+- [ ] On build push JSON file with sizing information to S3
 
 ### Displaying photos
 
-- [ ] Show list/grid of all (current) photos in a static site
-    - Might need to expose an API (potentially consisting of static JSON stored in S3) to supply to a static site renderer
-    - Potentially include static site generator (Next.JS) inside the same repo so that the static site always gets built when a deploy happens so that the backend and frontend are never out of sync
+- [ ] Set up NextJS static site which uses JSON containing sizing information to render all available srcsets
+- [ ] During backend deployment send a build webhook to Netlify to trigger a build so that the static site always has the latest correct data
+- [ ] Create list/grid of all (current) photos in static site
+- [ ] Create single photo page
 - [ ] For each photo in the static site, responsively render all image resolutions in srcset attribute
 
