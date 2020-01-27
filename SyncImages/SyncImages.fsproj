@@ -24,8 +24,4 @@
     <PackageReference Include="Veldrid.ImageSharp" Version="4.7.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ImagePortfolio\ImagePortfolio.fsproj" />
-  </ItemGroup>
-
 </Project>
