@@ -3,6 +3,7 @@
 open Microsoft.FSharp.Reflection
 open FSharp.Json
 open S3Setup
+open Amazon.S3.Model
 
 let s3Root = sprintf "https://%s.s3-ap-southeast-2.amazonaws.com/" bucketName
 
@@ -54,3 +55,17 @@ let makeInfo syncImgs =
 
 let config = JsonConfig.create(jsonFieldNaming = Json.lowerCamelCase)
 let serialise o = Json.serializeEx config o
+
+
+let uploadJson key content =
+    let req = new PutObjectRequest()
+    req.BucketName <- bucketName
+    req.Key <- key
+    req.ContentBody <- content
+    req.ContentType <- "application/json"
+
+    client.PutObjectAsync req
+    |> Async.AwaitTask
+
+
+let uploadMetadata = uploadJson (sprintf "%s/metadata.json" jsonDir)

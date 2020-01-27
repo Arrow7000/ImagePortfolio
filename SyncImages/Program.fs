@@ -10,12 +10,14 @@ let main argv =
         
         let syncImgs = getSyncImgs localImages s3imgs
 
-        let! _ =
+        do!
             syncImgs
             |> getToUploads
             |> uploadAllFiles
+            |> Async.Ignore
 
-        printfn "%A" (makeInfo syncImgs |> serialise)
+        let metadata = makeInfo syncImgs |> serialise
+        do! (uploadMetadata metadata |> Async.Ignore)
 
     } |> Async.RunSynchronously
 
