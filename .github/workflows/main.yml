@@ -8,4 +8,5 @@ jobs:
     runs-on: ubuntu-latest # Environment job will run in
 
     steps: # Each action/command to run
+    - uses: actions/checkout@v1
     - uses: ./.github/actions/sync-images # Tell it to run out JS Action
