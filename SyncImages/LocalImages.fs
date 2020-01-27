@@ -3,12 +3,13 @@
 open System.IO
 open FSharp.Text.RegexProvider
 
+let getSiblingDir dirName =
+    //Path.Combine(Directory.GetParent(__SOURCE_DIRECTORY__).FullName, dirName)
+    Path.Combine(__SOURCE_DIRECTORY__, dirName)
 
-let currentImgDir =
-    Path.Combine(Directory.GetParent(__SOURCE_DIRECTORY__).FullName, "current")
+let currentImgDir = getSiblingDir "current"
 
-let archiveImgDir =
-    Path.Combine(Directory.GetParent(__SOURCE_DIRECTORY__).FullName, "archived")
+let archiveImgDir = getSiblingDir "archive"
 
 
 
