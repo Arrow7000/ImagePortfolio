@@ -8,7 +8,7 @@ let getSiblingDir dirName =
 
 let currentImgDir = getSiblingDir "current"
 
-let archiveImgDir = getSiblingDir "archive"
+let archiveImgDir = getSiblingDir "archived"
 
 
 
