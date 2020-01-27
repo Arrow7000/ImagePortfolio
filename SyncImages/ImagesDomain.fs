@@ -2,6 +2,7 @@
 module ImagesDomain
 
 open ImageConversion
+open S3Setup
 
 [<Literal>]
 let jpg = "jpg"
@@ -62,7 +63,7 @@ let s3Path name (size : Size) ext =
         match size.size with
         | None -> ""
         | Some n -> sprintf "-%i" n
-    sprintf "%s/%s%s.%s" name name sizeSuffix ext
+    sprintf "%s/%s/%s%s.%s" imageDir name name sizeSuffix ext
 
 type ToUpload =
     | ToUpload of LocalImg * size : Size

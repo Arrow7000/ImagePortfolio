@@ -41,14 +41,16 @@ let getAllS3ObjectPaths () =
          >> Seq.toList)
 
 [<Literal>]
-let regex = "^(?<name>\w+)\/\w+(?:-(?<size>\d+))?\.jpg$"
+let regex = "^" + imageDir + "\/(?<name>\w+)\/\w+(?:-(?<size>\d+))?\.jpg$"
 
 type S3ImageProvider = Regex<regex>
 
 let getS3ImgFromStr str =
     match S3ImageProvider().TryTypedMatch str with
-    | None -> failwithf "File '%s' doesn't match expected conventon" str
-    | Some m -> { S3Name = m.name.Value; Size = Size.parse m.size.Value }
+    | None -> None
+    | Some m -> Some { S3Name = m.name.Value; Size = Size.parse m.size.Value }
 
-let getAllS3Imgs = getAllS3ObjectPaths >> Async.map (List.map getS3ImgFromStr)
+let getAllS3Imgs =
+    getAllS3ObjectPaths
+    >> Async.map (List.choose getS3ImgFromStr)
 

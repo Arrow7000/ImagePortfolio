@@ -72,7 +72,7 @@ let getToUploads syncImgs =
 
 
 
-let uploadFile (toUpload : ToUpload) =
+let uploadStream (toUpload : ToUpload) =
     let req = new PutObjectRequest()
     req.BucketName <- bucketName
     req.Key <- toUpload.uploadStr
@@ -83,7 +83,7 @@ let uploadFile (toUpload : ToUpload) =
 
 
 let uploadAllFiles =
-    List.map uploadFile
+    List.map uploadStream
     >> Async.Parallel
     >> Async.map
         (Array.toList >> List.map (fun obj -> obj.ResponseMetadata.RequestId))
