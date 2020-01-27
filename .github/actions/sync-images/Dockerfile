@@ -2,5 +2,6 @@ FROM microsoft/dotnet
 
 RUN echo "Hello world!"
 
+WORKDIR /app
 COPY . .
-RUN dotnet run -p ./SyncImages/
+ENTRYPOINT [ "dotnet", "run", "-p", "SyncImages/" ]
