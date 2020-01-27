@@ -4,8 +4,7 @@ open System.IO
 open FSharp.Text.RegexProvider
 
 let getSiblingDir dirName =
-    //Path.Combine(Directory.GetParent(__SOURCE_DIRECTORY__).FullName, dirName)
-    Path.Combine(__SOURCE_DIRECTORY__, dirName)
+    Path.Combine(Directory.GetParent(__SOURCE_DIRECTORY__).FullName, dirName)
 
 let currentImgDir = getSiblingDir "current"
 
