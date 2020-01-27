@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="YoLo.fs" />
     <Compile Include="S3Setup.fs" />
     <Compile Include="ImageConversion.fs" />
     <Compile Include="ImagesDomain.fs" />
@@ -17,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.3.110.14" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.110.19" />
     <PackageReference Include="FSharp.Json" Version="0.4.0" />
     <PackageReference Include="FSharp.Management" Version="0.4.5" />
     <PackageReference Include="FSharp.Text.RegexProvider" Version="2.1.0" />
