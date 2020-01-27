@@ -20,3 +20,8 @@ A tool for deploying and displaying my photography portfolio.
 - [ ] Create single photo page
 - [ ] For each photo in the static site, responsively render all image resolutions in srcset attribute
 
+### Tech & configuration
+
+- [ ] Parameterise AWS credentials as env variables
+- [ ] Parameterise bucket name as env variable
+- [ ] Parameterise Netlify site URL for triggering builds
