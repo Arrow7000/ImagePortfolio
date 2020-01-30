@@ -28,6 +28,8 @@ A tool for deploying and displaying my photography portfolio.
 - [ ] Create album page
 - [ ] For each photo in the static site, responsively render all image resolutions in srcset attribute
 - [ ] Display photo metadata (ISO, SS, aperture, etc)
+- [ ] Group photos into albums
+- [ ] Add tags to photos and/or albums
 
 ### Tech & configuration
 
