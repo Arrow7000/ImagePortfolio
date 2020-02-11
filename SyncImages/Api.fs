@@ -5,8 +5,8 @@ open FSharp.Json
 open S3Setup
 open Amazon.S3.Model
 
-let s3Root = sprintf "https://%s.s3-ap-southeast-2.amazonaws.com/" bucketName
 
+let cdnRoot = "https://d3ltknfikz7r4w.cloudfront.net/"
 
 type SizeNum = string
 type S3Path = string
@@ -33,7 +33,7 @@ let sizeNums = allSizes |> List.choose (fun s -> s.size)
 
 let makeAvailImg name =
     { AvailableImage.Name = name
-      Original = s3Root + s3Path name Original jpg
+      Original = cdnRoot + s3Path name Original jpg
       OtherSizes =
         allSizes
         |> List.choose
@@ -41,7 +41,7 @@ let makeAvailImg name =
                 size.size
                 |> Option.map
                     (fun sizeNum ->
-                        string sizeNum, s3Root + s3Path name size jpg))
+                        string sizeNum, cdnRoot + s3Path name size jpg))
         |> Map.ofList }
 
 let makeInfo syncImgs =
