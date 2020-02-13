@@ -3,8 +3,13 @@ open S3Images
 open SyncImages
 open Api
 
+open dotenv.net
+
+
 [<EntryPoint>]
 let main argv =
+    DotEnv.Config(false, __SOURCE_DIRECTORY__ + "/.env")
+
     async {
         let! s3imgs = getAllS3Imgs ()
         

@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.3.110.19" />
+    <PackageReference Include="dotenv.net" Version="1.0.6" />
     <PackageReference Include="FSharp.Json" Version="0.4.0" />
     <PackageReference Include="FSharp.Text.RegexProvider" Version="2.1.0" />
     <PackageReference Include="Veldrid.ImageSharp" Version="4.7.0" />

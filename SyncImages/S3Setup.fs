@@ -4,11 +4,11 @@ open Amazon
 open Amazon.Runtime
 open Amazon.S3
 
-let private accessKey = "AKIA5IHOEO5RL4BYFZUC"
-let private secretKey = "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"
+let private accessKey = Env.varRequired "ACCESS_KEY"
+let private secretKey = Env.varRequired "SECRET_KEY"
 let private credentials = new BasicAWSCredentials(accessKey, secretKey);
 let client = new AmazonS3Client(credentials, RegionEndpoint.APSoutheast2)
-let bucketName = "aron-photo-portfolio"
+let bucketName = Env.varRequired "BUCKET_NAME"
 
 [<Literal>]
 let imageDir = "photos"
