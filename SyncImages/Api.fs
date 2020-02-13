@@ -5,7 +5,7 @@ open FSharp.Json
 open S3Setup
 open Amazon.S3.Model
 
-type SizeNum = int
+type SizeNum = string
 type S3Path = string
 
 
@@ -33,9 +33,6 @@ type Info =
 
 
 
-
-
-
 let allSizes =
     FSharpType.GetUnionCases(typeof<Size>)
     |> Array.map (fun case -> FSharpValue.MakeUnion(case, [| |]) :?> Size)
@@ -55,7 +52,7 @@ let makeAvailImg { LocalName = name } =
                 size.size
                 |> Option.map
                     (fun sizeNum ->
-                        sizeNum, cdnRoot + s3Path name size jpg))
+                        string sizeNum, cdnRoot + s3Path name size jpg))
         |> Map.ofList }
 
 
