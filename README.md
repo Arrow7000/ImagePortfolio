@@ -8,20 +8,26 @@ A tool for deploying and displaying my photography portfolio.
 
 - [x] Creating photos in multiple sizes based on need
 - [x] Syncing all images to S3
-- [ ] Set up pipeline so that sync and upload happens on each push
+- [x] Set up pipeline so that sync and upload happens on each push
     - Potentially use GitHub Actions
-- [ ] On build push JSON file with sizing information to S3
+- [x] On build push JSON file with sizing information to S3
+- [x] Support albums
+- [ ] Support album info in text/md/json file
+- [ ] Add height and width information so portrait photos can be displayed properly
 
 ### Displaying photos
 
 - [ ] Set up NextJS static site which uses JSON containing sizing information to render all available srcsets
-- [ ] During backend deployment send a build webhook to Netlify to trigger a build so that the static site always has the latest correct data
-- [ ] Create list/grid of all (current) photos in static site
+- [ ] During backend deployment send a push webhook to Netlify to trigger a build so that the static site always has the latest correct data
+- [ ] Create list/grid of all (current) photos and albums in static site
 - [ ] Create single photo page
+- [ ] Create album page
 - [ ] For each photo in the static site, responsively render all image resolutions in srcset attribute
+- [ ] Display photo metadata (ISO, SS, aperture, etc)
 
 ### Tech & configuration
 
 - [ ] Parameterise AWS credentials as env variables
 - [ ] Parameterise bucket name as env variable
 - [ ] Parameterise Netlify site URL for triggering builds
+- [ ] Use ImageMagick for image conversions

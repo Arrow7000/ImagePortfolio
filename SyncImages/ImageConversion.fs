@@ -1,9 +1,17 @@
-﻿module ImageConversion
+module ImageConversion
 
 
 open System.IO
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.Processing
+
+
+let inline scaleMaxTo max (w,h) =
+    if w > h then
+        max, h / w * max
+    else w / h * max, max
+
+
 
 let resizeImg maxSideSizeOpt (path : string) =
     use image = Image.Load(path)
@@ -12,10 +20,7 @@ let resizeImg maxSideSizeOpt (path : string) =
         let w = image.Width
         let h = image.Height
         match maxSideSizeOpt with
-        | Some maxSideSize ->
-            if w > h then
-                maxSideSize, h / w * maxSideSize
-            else w / h * maxSideSize, maxSideSize
+        | Some maxSideSize -> scaleMaxTo maxSideSize (w,h)
         | None -> w, h
 
     use copy = image.Clone()
