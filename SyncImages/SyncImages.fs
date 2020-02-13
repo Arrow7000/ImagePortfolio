@@ -2,6 +2,8 @@
 
 open Amazon.S3.Model
 open S3Setup
+open LocalImages
+
 
 
 let groupS3Imgs s3Imgs =
@@ -21,8 +23,10 @@ let groupS3Imgs s3Imgs =
 
 
 
-let getSyncImgs localImgs s3Imgs =
+let getSyncImgs localImgOrAlbums s3Imgs =
     let groupedS3Imgs = groupS3Imgs s3Imgs
+
+    let localImgs = flattenAlbums localImgOrAlbums
 
     localImgs
     |> List.map
@@ -75,7 +79,7 @@ let getToUploads syncImgs =
 let uploadStream (toUpload : ToUpload) =
     let req = new PutObjectRequest()
     req.BucketName <- bucketName
-    req.Key <- toUpload.uploadStr
+    req.Key <- toUpload.s3Key
     req.InputStream <- toUpload.stream
 
     client.PutObjectAsync req
@@ -86,5 +90,5 @@ let uploadAllFiles =
     List.map uploadStream
     >> Async.Parallel
     >> Async.map
-        (Array.toList >> List.map (fun obj -> obj.ResponseMetadata.RequestId))
+        (Array.toList >> List.map (fun res -> res.ResponseMetadata.RequestId))
 

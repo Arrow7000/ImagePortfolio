@@ -13,3 +13,5 @@ let bucketName = "aron-photo-portfolio"
 [<Literal>]
 let imageDir = "photos"
 let jsonDir = "metadata"
+
+let cdnRoot = "https://d3ltknfikz7r4w.cloudfront.net/"

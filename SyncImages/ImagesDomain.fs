@@ -30,13 +30,13 @@ type Size =
             failwithf "'%s' doesn't match any of the allowed sizes" str
 
 /// Unused for now
-type RawExtension =
-    | RAF
+//type RawExtension =
+//    | RAF
 
-    static member parse =
-        function
-        | "RAF" | "raf" -> RAF
-        | _ as str -> failwithf "%s is not a currently recognised raw image file extension" str
+//    static member parse =
+//        function
+//        | "RAF" | "raf" -> RAF
+//        | _ as str -> failwithf "%s is not a currently recognised raw image file extension" str
 
 
 let makeSizeMap orig px2k px1k px4c =
@@ -47,16 +47,6 @@ let makeSizeMap orig px2k px1k px4c =
     | Px400 -> px4c
 
 
-type LocalImg =
-    { LocalName : string // name without file extension, e.g. "DSC01234"
-      Extension : string // e.g. "jpg" without the dot
-      FullPath  : string } // to be used for uploads
-
-
-type S3Image =
-    { S3Name    : string // full S3 path, e.g. DSC01234/DSC01234-2000.jpg
-      Size      : Size }
-
 
 let s3Path name (size : Size) ext =
     let sizeSuffix =
@@ -65,6 +55,30 @@ let s3Path name (size : Size) ext =
         | Some n -> sprintf "-%i" n
     sprintf "%s/%s/%s%s.%s" imageDir name name sizeSuffix ext
 
+
+
+type LocalImg =
+    { LocalName : string // name without file extension, e.g. "DSC01234"
+      Extension : string // e.g. "jpg" without the dot
+      FullPath  : string } // to be used for uploads
+
+
+type LocalAlbum =
+    { Name      : string
+      Images    : LocalImg list }
+
+type LocalImgOrAlbum =
+    | LocalImg of LocalImg
+    | LocalAlbum of LocalAlbum
+
+
+type S3Image =
+    { S3Name    : string // full S3 path, e.g. DSC01234/DSC01234-2000.jpg
+      Size      : Size }
+
+
+
+
 type ToUpload =
     | ToUpload of LocalImg * size : Size
 
@@ -72,7 +86,7 @@ type ToUpload =
         let (ToUpload (localImg,size)) = this
         resizeImg size.size localImg.FullPath
 
-    member this.uploadStr =
+    member this.s3Key =
         let (ToUpload (localImg,size)) = this
         s3Path localImg.LocalName size localImg.Extension
 
@@ -85,4 +99,3 @@ type UploadStatus =
 type SyncImage =
     { Name          : string
       UploadGetter  : Size -> UploadStatus }
-

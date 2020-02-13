@@ -5,20 +5,34 @@ open FSharp.Json
 open S3Setup
 open Amazon.S3.Model
 
-
-let cdnRoot = "https://d3ltknfikz7r4w.cloudfront.net/"
-
-type SizeNum = string
+type SizeNum = int
 type S3Path = string
+
+
+
 
 type AvailableImage =
     { Name          : string
       Original      : string
       OtherSizes    : Map<SizeNum,S3Path> }
 
-type Info =
-    { Sizes     : int list
+
+type Album =
+    { Name      : string
       Images    : AvailableImage list }
+
+
+type ImageOrAlbum =
+    | Image of AvailableImage
+    | Album of Album
+
+
+type Info =
+    { Sizes             : int list
+      ImagesAndAlbums   : ImageOrAlbum list }
+
+
+
 
 
 
@@ -31,7 +45,7 @@ let allSizes =
 let sizeNums = allSizes |> List.choose (fun s -> s.size)
 
 
-let makeAvailImg name =
+let makeAvailImg { LocalName = name } =
     { AvailableImage.Name = name
       Original = cdnRoot + s3Path name Original jpg
       OtherSizes =
@@ -41,15 +55,20 @@ let makeAvailImg name =
                 size.size
                 |> Option.map
                     (fun sizeNum ->
-                        string sizeNum, cdnRoot + s3Path name size jpg))
+                        sizeNum, cdnRoot + s3Path name size jpg))
         |> Map.ofList }
 
-let makeInfo syncImgs =
+
+let makeInfo localImgsAndAlbums =
     { Sizes = sizeNums
-      Images =
-        syncImgs
+      ImagesAndAlbums =
+        localImgsAndAlbums
         |> List.map
-            (fun {SyncImage.Name = name} -> makeAvailImg name) }
+            (function
+             | LocalImg img -> Image (makeAvailImg img)
+             | LocalAlbum { Name = name; Images = imgs } ->
+                Album { Name = name; Images = List.map makeAvailImg imgs }) }
+
 
 
 
