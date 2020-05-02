@@ -21,13 +21,17 @@ A tool for deploying and displaying my photography portfolio.
 - [ ] During backend deployment send a push webhook to Netlify to trigger a build so that the static site always has the latest correct data
 - [ ] Create list/grid of all (current) photos and albums in static site
 - [ ] Create single photo page
+    - [ ] Photo itself
+    - [ ] Caption and optional additional text
+    - [ ] Adequate margin
+    - [ ] Fullscreen mode
 - [ ] Create album page
 - [ ] For each photo in the static site, responsively render all image resolutions in srcset attribute
 - [ ] Display photo metadata (ISO, SS, aperture, etc)
 
 ### Tech & configuration
 
-- [ ] Parameterise AWS credentials as env variables
-- [ ] Parameterise bucket name as env variable
+- [x] Parameterise AWS credentials as env variables
+- [x] Parameterise bucket name as env variable
 - [ ] Parameterise Netlify site URL for triggering builds
 - [ ] Use ImageMagick for image conversions
