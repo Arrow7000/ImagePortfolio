@@ -3,31 +3,51 @@ module ImagesDomain
 
 open ImageConversion
 open S3Setup
+open FSharp.Reflection
 
 [<Literal>]
 let jpg = "jpg"
 
 type Size =
-    | Original
     | Px2000
     | Px1000
     | Px400
 
     member this.size =
         match this with
+        | Px2000 -> 2000
+        | Px1000 -> 1000
+        | Px400 -> 400
+
+    static member all =
+        FSharpType.GetUnionCases(typeof<Size>)
+        |> List.ofSeq
+        |> List.map (fun c -> FSharpValue.MakeUnion(c, [||]) :?> Size)
+
+
+type OrigOrSize =
+    | Original
+    | Size of Size
+
+    member this.size =
+        match this with 
         | Original -> None
-        | Px2000 -> Some 2000
-        | Px1000 -> Some 1000
-        | Px400 -> Some 400
+        | Size size -> Some size.size
 
     static member parse =
         function
         | "" -> Original
-        | "2000" -> Px2000
-        | "1000" -> Px1000
-        | "400" -> Px400
+        | "2000" -> Size Px2000
+        | "1000" -> Size Px1000
+        | "400" -> Size Px400
         | _ as str ->
             failwithf "'%s' doesn't match any of the allowed sizes" str
+
+    static member blankMap =
+            Size.all
+            |> List.map (fun s -> Size s, ())
+            |> Map.ofSeq
+            |> Map.add Original ()
 
 /// Unused for now
 //type RawExtension =
@@ -42,13 +62,15 @@ type Size =
 let makeSizeMap orig px2k px1k px4c =
     function
     | Original -> orig
-    | Px2000 -> px2k
-    | Px1000 -> px1k
-    | Px400 -> px4c
+    | Size size ->
+        match size with
+        | Px2000 -> px2k
+        | Px1000 -> px1k
+        | Px400 -> px4c
 
 
 
-let s3Path name (size : Size) ext =
+let s3Path name (size : OrigOrSize) ext =
     let sizeSuffix =
         match size.size with
         | None -> ""
@@ -60,7 +82,9 @@ let s3Path name (size : Size) ext =
 type LocalImg =
     { LocalName : string // name without file extension, e.g. "DSC01234"
       Extension : string // e.g. "jpg" without the dot
-      FullPath  : string } // to be used for uploads
+      FullPath  : string // to be used for uploads
+      Height    : int
+      Width     : int }
 
 
 type LocalAlbum =
@@ -73,14 +97,14 @@ type LocalImgOrAlbum =
 
 
 type S3Image =
-    { S3Name    : string // full S3 path, e.g. DSC01234/DSC01234-2000.jpg
-      Size      : Size }
+    { S3Name        : string // full S3 path, e.g. DSC01234/DSC01234-2000.jpg
+      LongestSize   : OrigOrSize }
 
 
 
 
 type ToUpload =
-    | ToUpload of LocalImg * size : Size
+    | ToUpload of LocalImg * longestSize : OrigOrSize
 
     member this.stream =
         let (ToUpload (localImg,size)) = this
@@ -97,5 +121,5 @@ type UploadStatus =
 
 
 type SyncImage =
-    { Name          : string
-      UploadGetter  : Size -> UploadStatus }
+    { Name              : string
+      UploadStatuses    : Map<OrigOrSize,UploadStatus> }

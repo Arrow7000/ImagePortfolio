@@ -2,6 +2,7 @@
 
 open System.IO
 open FSharp.Text.RegexProvider
+open SixLabors.ImageSharp
 
 
 
@@ -30,11 +31,15 @@ let getFolders = Directory.EnumerateDirectories >> List.ofSeq
 let regex = "(?<name>\w+)\.(?<extension>[a-zA-Z]+)$"
 type LocalImageProvider = Regex<regex>
 
-let makeLocalImg path =
+let makeLocalImg (path : string) =
+    use img = Image.Load(path)
+
     let m = LocalImageProvider().TypedMatch(path)
     { LocalName = m.name.Value
       Extension = m.extension.Value
-      FullPath = path }
+      FullPath = path
+      Height = img.Height
+      Width = img.Width }
 
 
 let makeLocalAlbum name imgs =
@@ -70,7 +75,7 @@ let localImages =
     |> tee
         (fun everything ->
             let imgs = flattenAlbums everything
-            let distinct = List.distinctBy (fun {LocalName=name} -> name) imgs
+            let distinct = List.distinctBy (fun { LocalName = name } -> name) imgs
             if List.length distinct <> List.length imgs then
                 failwithf "Several images have the same filename which is not allowed because they are stored on S3 in a flat list.")
 

@@ -6,10 +6,10 @@ open SixLabors.ImageSharp
 open SixLabors.ImageSharp.Processing
 
 
-let inline scaleMaxTo max (w,h) =
+let scaleMaxTo max (w,h) : int * int =
     if w > h then
-        max, h / w * max
-    else w / h * max, max
+        max, (float h / float w) * float max |> round |> int
+    else (float w / float h) * float max |> round |> int, max
 
 
 

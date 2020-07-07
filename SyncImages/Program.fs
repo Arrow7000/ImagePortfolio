@@ -22,8 +22,12 @@ let main argv =
             |> Async.Ignore
 
         let metadata = makeInfo localImages
-        printfn "%A" metadata
-        do! (serialise metadata |> uploadMetadata |> Async.Ignore)
+
+        do!
+            serialise metadata
+            |> tee (printfn "%A")
+            |> uploadMetadata
+            |> Async.Ignore
 
     } |> Async.RunSynchronously
 

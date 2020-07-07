@@ -48,7 +48,8 @@ type S3ImageProvider = Regex<regex>
 let getS3ImgFromStr str =
     match S3ImageProvider().TryTypedMatch str with
     | None -> None
-    | Some m -> Some { S3Name = m.name.Value; Size = Size.parse m.size.Value }
+    | Some m ->
+        Some { S3Name = m.name.Value; LongestSize = OrigOrSize.parse m.size.Value }
 
 let getAllS3Imgs =
     getAllS3ObjectPaths

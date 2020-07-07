@@ -1,20 +1,35 @@
 ﻿module Api
 
-open Microsoft.FSharp.Reflection
 open FSharp.Json
 open S3Setup
 open Amazon.S3.Model
+open ImageConversion
 
 type SizeNum = string
 type S3Path = string
 
+type Orientation =
+    | Square
+    | Landscape
+    | Portrait
 
 
+let getOrientation w h =
+  if w = h then Square
+  else if w > h then Landscape
+  else Portrait
+
+
+type SizedImage =
+    { Path      : string
+      Width     : int
+      Height    : int }
 
 type AvailableImage =
     { Name          : string
-      Original      : string
-      OtherSizes    : Map<SizeNum,S3Path> }
+      OriginalPath  : string
+      Orientation   : Orientation
+      OtherSizes    : SizedImage list }
 
 
 type Album =
@@ -27,44 +42,35 @@ type ImageOrAlbum =
     | Album of Album
 
 
-type Info =
-    { Sizes             : int list
-      ImagesAndAlbums   : ImageOrAlbum list }
+type Info = { ImagesAndAlbums : ImageOrAlbum list }
 
 
 
-let allSizes =
-    FSharpType.GetUnionCases(typeof<Size>)
-    |> Array.map (fun case -> FSharpValue.MakeUnion(case, [| |]) :?> Size)
-    |> List.ofArray
-
-
-let sizeNums = allSizes |> List.choose (fun s -> s.size)
-
-
-let makeAvailImg { LocalName = name } =
+let makeAvailImg { LocalName = name; Height = height; Width = width } =
     { AvailableImage.Name = name
-      Original = cdnRoot + s3Path name Original jpg
+      OriginalPath = cdnRoot + s3Path name Original jpg
+      Orientation = getOrientation width height
       OtherSizes =
-        allSizes
-        |> List.choose
+        Size.all
+        |> List.map
             (fun size ->
-                size.size
-                |> Option.map
-                    (fun sizeNum ->
-                        string sizeNum, cdnRoot + s3Path name size jpg))
-        |> Map.ofList }
+                let (w,h) = scaleMaxTo size.size (width, height)
+
+                let path = cdnRoot + s3Path name (Size size) jpg
+                { Path = path
+                  Width = w
+                  Height = h }) }
 
 
 let makeInfo localImgsAndAlbums =
-    { Sizes = sizeNums
-      ImagesAndAlbums =
+    { ImagesAndAlbums =
         localImgsAndAlbums
         |> List.map
             (function
-             | LocalImg img -> Image (makeAvailImg img)
-             | LocalAlbum { Name = name; Images = imgs } ->
-                Album { Name = name; Images = List.map makeAvailImg imgs }) }
+                | LocalImg img ->
+                    Image (makeAvailImg img)
+                | LocalAlbum { Name = name; Images = imgs } ->
+                    Album { Name = name; Images = List.map makeAvailImg imgs }) }
 
 
 

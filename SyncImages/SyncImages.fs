@@ -7,12 +7,12 @@ open LocalImages
 
 
 let groupS3Imgs s3Imgs =
-    List.groupBy (fun {S3Name = name} -> name) s3Imgs
+    List.groupBy (fun { S3Name = name } -> name) s3Imgs
     |> Map.ofList
     |> Map.map
         (fun _ allSizes ->
             allSizes
-            |> List.groupBy (fun {Size=size} -> size)
+            |> List.groupBy (fun { LongestSize = size } -> size)
             |> List.choose
                 (fun (size,imgs) ->
                     match imgs with
@@ -35,41 +35,43 @@ let getSyncImgs localImgOrAlbums s3Imgs =
 
                 match Map.tryFind localName groupedS3Imgs with
                 | Some sizeMap ->
-                    let tryFindInMap size =
-                        match Map.tryFind size sizeMap with
-                        | Some s3Img -> Uploaded s3Img.S3Name
-                        | None ->
-                            (localImg, size)
-                            |> ToUpload.ToUpload
-                            |> ToUpload
+                    let uploadStatuses =
+                        OrigOrSize.blankMap
+                        |> Map.map
+                            (fun size () ->
+                                match Map.tryFind size sizeMap with
+                                | Some s3Img -> Uploaded s3Img.S3Name
+                                | None ->
+                                    (localImg, size)
+                                    |> ToUpload.ToUpload
+                                    |> ToUpload)
                     
                     { Name = localName
-                      UploadGetter = tryFindInMap }
+                      UploadStatuses = uploadStatuses }
 
                 | None ->
-                    let makeToUpload size =
-                        ToUpload.ToUpload (localImg, size)
-                        |> ToUpload
+                    let uploadStatuses =
+                        OrigOrSize.blankMap
+                        |> Map.map
+                            (fun size () ->
+                                ToUpload.ToUpload (localImg, size)
+                                |> ToUpload)
 
                     { Name = localName
-                      UploadGetter =
-                        makeSizeMap
-                            (makeToUpload Original)
-                            (makeToUpload Px2000)
-                            (makeToUpload Px1000)
-                            (makeToUpload Px400)
-                    }
-        )
+                      UploadStatuses = uploadStatuses })
 
 let getToUploads syncImgs =
     syncImgs
     |> List.collect
-        (fun { UploadGetter = getter } ->
-            List.map getter Api.allSizes
-            |> List.choose
-                (function
-                 | Uploaded _ -> None
-                 | ToUpload toUpload -> Some toUpload))
+        (fun { UploadStatuses = getterMap } ->
+            getterMap
+            |> Map.map
+                (fun _ uploadStatus ->
+                    match uploadStatus with
+                    | Uploaded _ -> None
+                    | ToUpload toUpload -> Some toUpload)
+            |> Map.toList
+            |> List.choose snd)
 
 
 
