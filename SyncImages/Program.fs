@@ -27,6 +27,7 @@ let main argv =
             serialise metadata
             |> tee (printfn "%A")
             |> uploadMetadata
+            // @TODO: trigger Netlify build here
             |> Async.Ignore
 
     } |> Async.RunSynchronously

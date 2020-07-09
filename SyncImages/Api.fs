@@ -28,6 +28,7 @@ type SizedImage =
 type AvailableImage =
     { Name          : string
       OriginalPath  : string
+      ThumbNail     : string
       Orientation   : Orientation
       OtherSizes    : SizedImage list }
 
@@ -49,6 +50,7 @@ type Info = { ImagesAndAlbums : ImageOrAlbum list }
 let makeAvailImg { LocalName = name; Height = height; Width = width } =
     { AvailableImage.Name = name
       OriginalPath = cdnRoot + s3Path name Original jpg
+      ThumbNail = cdnRoot + s3Path name (Size Px1000) jpg
       Orientation = getOrientation width height
       OtherSizes =
         Size.all

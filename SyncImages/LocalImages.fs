@@ -23,16 +23,23 @@ let currentImgDir = getTopLevelDir "current"
 let archiveImgDir = getTopLevelDir "archived"
 
 
-let getFiles = Directory.EnumerateFiles >> List.ofSeq
+let getFiles =
+    Directory.EnumerateFiles
+    >> List.ofSeq
+    >> List.filter (fun file -> file.EndsWith ".jpg" || file.EndsWith ".JPG")
+
 let getFolders = Directory.EnumerateDirectories >> List.ofSeq
 
 
 [<Literal>]
-let regex = "(?<name>\w+)\.(?<extension>[a-zA-Z]+)$"
+let regex = "(?<name>[\w-]+)\.(?<extension>[a-zA-Z]+)$"
 type LocalImageProvider = Regex<regex>
 
 let makeLocalImg (path : string) =
     use img = Image.Load(path)
+
+    //printfn "%A" img.MetaData.ExifProfile.Values
+    //printfn "%A" (img.MetaData.ExifProfile.GetValue MetaData.Profiles.Exif.ExifTag.ApertureValue)
 
     let m = LocalImageProvider().TypedMatch(path)
     { LocalName = m.name.Value
