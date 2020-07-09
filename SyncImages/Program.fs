@@ -2,9 +2,15 @@
 open S3Images
 open SyncImages
 open Api
+open FSharp.Data
 
 open dotenv.net
 
+let netlifyTriggerUrl =
+    "https://api.netlify.com/build_hooks/5f048f19c1864101e8c5bd12"
+
+let triggerNetlifyBuild _ =
+    Http.AsyncRequest(netlifyTriggerUrl, httpMethod="POST")
 
 [<EntryPoint>]
 let main argv =
@@ -27,7 +33,7 @@ let main argv =
             serialise metadata
             |> tee (printfn "%A")
             |> uploadMetadata
-            // @TODO: trigger Netlify build here
+            |> Async.map triggerNetlifyBuild
             |> Async.Ignore
 
     } |> Async.RunSynchronously
