@@ -1,5 +1,5 @@
-name: 'Hello World'
-description: 'Greet someone'
+name: 'Sync images'
+description: 'Sync images with S3 and publish JSON metadata to S3'
 runs:
   using: 'docker'
   image: 'Dockerfile'
