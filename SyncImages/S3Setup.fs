@@ -14,4 +14,5 @@ let bucketName = Env.varRequired "BUCKET_NAME"
 let imageDir = "photos"
 let jsonDir = "metadata"
 
+/// CDN root URL with trailing slash
 let cdnRoot = "https://d3ltknfikz7r4w.cloudfront.net/"

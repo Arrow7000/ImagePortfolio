@@ -14,6 +14,11 @@
     <Compile Include="LocalImages.fs" />
     <Compile Include="S3Images.fs" />
     <Compile Include="SyncImages.fs" />
+    <Compile Include="NewHelpers.fs" />
+    <Compile Include="DB.fs" />
+    <Compile Include="UploadAndProcess.fs" />
+    <Compile Include="Functionality.fs" />
+    <Compile Include="Server.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
@@ -21,8 +26,10 @@
     <PackageReference Include="AWSSDK.S3" Version="3.3.110.19" />
     <PackageReference Include="dotenv.net" Version="1.0.6" />
     <PackageReference Include="FSharp.Data" Version="3.3.3" />
+    <PackageReference Include="FSharp.Data.GraphQL.Client" Version="1.0.7" />
     <PackageReference Include="FSharp.Json" Version="0.4.0" />
     <PackageReference Include="FSharp.Text.RegexProvider" Version="2.1.0" />
+    <PackageReference Include="Suave" Version="2.6.0" />
     <PackageReference Include="Veldrid.ImageSharp" Version="4.7.0" />
   </ItemGroup>
 

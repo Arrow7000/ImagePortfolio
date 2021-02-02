@@ -1,8 +1,13 @@
-﻿open LocalImages
+﻿open System
+open Suave
+open FSharp.Data
+open LocalImages
 open S3Images
 open SyncImages
 open Api
-open FSharp.Data
+open DB
+open UploadAndProcess
+open Server
 
 open dotenv.net
 
@@ -13,29 +18,14 @@ let triggerNetlifyBuild _ =
     Http.AsyncRequest(netlifyTriggerUrl, httpMethod="POST")
 
 [<EntryPoint>]
-let main argv =
+let main _ =
     DotEnv.Config(false, __SOURCE_DIRECTORY__ + "/.env")
 
-    async {
-        let! s3imgs = getAllS3Imgs ()
-        
-        let syncImgs = getSyncImgs localImages s3imgs
 
-        do!
-            syncImgs
-            |> getToUploads
-            |> uploadAllFiles
-            |> Async.Ignore
+    let config =
+        { defaultConfig with
+              bindings = [ HttpBinding.create HTTP Net.IPAddress.Any (uint16 4000) ]
+              hideHeader = true }
 
-        let metadata = makeInfo localImages
-
-        do!
-            serialise metadata
-            |> tee (printfn "%A")
-            |> uploadMetadata
-            |> Async.map triggerNetlifyBuild
-            |> Async.Ignore
-
-    } |> Async.RunSynchronously
-
+    startWebServer config api
     0 // return an integer exit code
