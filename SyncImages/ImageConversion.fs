@@ -6,6 +6,14 @@ open SixLabors.ImageSharp
 open SixLabors.ImageSharp.Processing
 
 
+type OrigDimensions =
+    { Height    : int
+      Width     : int }
+
+/// Temp path to uploaded file
+type TempFilePath = TempFilePath of string
+
+
 let scaleMaxTo max (w,h) : int * int =
     if w > h then
         max, (float h / float w) * float max |> round |> int
@@ -13,7 +21,7 @@ let scaleMaxTo max (w,h) : int * int =
 
 
 
-let resizeImg maxSideSizeOpt (path : string) =
+let resizeImg maxSideSizeOpt (TempFilePath path) =
     use image = Image.Load(path)
 
     let (newWidth,newHeight) =
@@ -38,13 +46,23 @@ let resizeImg maxSideSizeOpt (path : string) =
 
 
 
+let getImageDimensions (TempFilePath path) =
+    use image = Image.Load(path)
+    let w = image.Width
+    let h = image.Height
+
+    { Height = h; Width = w }
+
+
+
+
 let resizeImgFromStream maxSideSizeOpt (stream : Stream) =
     stream.Seek(0L, SeekOrigin.Begin) |> ignore // just in case
     use image = Image.Load(stream)
 
+    let w = image.Width
+    let h = image.Height
     let (newWidth,newHeight) =
-        let w = image.Width
-        let h = image.Height
         match maxSideSizeOpt with
         | Some maxSideSize -> scaleMaxTo maxSideSize (w,h)
         | None -> w, h

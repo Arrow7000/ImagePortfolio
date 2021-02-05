@@ -20,11 +20,11 @@ let uploadSingleFile (S3Path s3Path) stream =
     |> Async.AwaitTask
 
 
-let convertAndUploadSingleImg s3Path origOrSize stream =
+let convertAndUploadSingleImg s3Path origOrSize path =
     let sizeOpt =
         match origOrSize with Original -> None | Size size -> Some size
 
-    resizeImgFromStream sizeOpt stream
+    resizeImg sizeOpt path
     |> uploadSingleFile s3Path
 
 
@@ -55,7 +55,7 @@ let checkIfImageExistsInS3 (S3Path s3Path) =
 
 
 
-let uploadImgIfNotAlreadyInS3 s3Path origOrSize stream =
+let convertAndUploadImgIfNotAlreadyInS3 s3Path origOrSize stream =
     async {
         let! result = checkIfImageExistsInS3 s3Path
 
@@ -85,17 +85,13 @@ let getAllImageFiles origHash =
 
 
 
-let uploadImgsIdempotently s3PathsList (origImgStream : Stream) =
+let uploadImgsIdempotently s3PathsList filePath =
     async {
-        use streamCopy = new MemoryStream()
-        do! origImgStream.CopyToAsync streamCopy |> Async.AwaitTask
-        streamCopy.Seek(0L, SeekOrigin.Begin) |> ignore
-    
         do!
             s3PathsList
             |> List.map
                 (fun (path, origOrSize) ->
-                    uploadImgIfNotAlreadyInS3 path origOrSize streamCopy)
+                    convertAndUploadImgIfNotAlreadyInS3 path origOrSize filePath)
             |> Async.Sequential
             |> Async.map ignore
     }

@@ -4,27 +4,52 @@ open System
 open System.IO
 open System.Security.Cryptography
 open System.Text
+open FSharp.Data
 open DB
 open UploadAndProcess
+open ImageConversion
 
 
-let private hashOfStream stream =
+let private hashOfPath (TempFilePath path) =
+    use fileStream = new FileStream(path, FileMode.Open)
     use md5 = MD5.Create()
     let hash =
-        (StringBuilder(), md5.ComputeHash(inputStream = stream))
+        (StringBuilder(), md5.ComputeHash(fileStream))
         ||> Array.fold (fun sb b -> sb.Append(b.ToString("x2")))
         |> string
-
-    stream.Seek(0L, SeekOrigin.Begin) |> ignore
 
     hash
 
 
-let uploadNewImagesAndPutInDb slug title description stream =
+let uploadNewImageAndPutInDb slug title description path =
     let guid = Guid.NewGuid()
-    let id = guid.ToString()
-    let hash = hashOfStream stream |> OrigImgHash
+    let hash = hashOfPath path |> OrigImgHash
+    let dimensions = getImageDimensions path
 
-    uploadAllRequiredImgs hash stream
-    |> Async.bind (fun _ -> addNewPhotoToDb id hash slug title description)
+    uploadAllRequiredImgs hash path
+    |> Async.bind (fun _ -> addNewPhotoToDb guid hash (dimensions.Height, dimensions.Width) slug title description)
 
+
+let editImage id titleOpt slugOpt descrOpt pathOpt =
+    async {
+        let! hashDimsOpt =
+            match pathOpt with
+            | Some path ->
+                async {
+                    let hash = hashOfPath path |> OrigImgHash
+                    let dimensions = getImageDimensions path
+                    do! uploadAllRequiredImgs hash path
+                    return Some (hash,dimensions) }
+            | None -> Async.result None
+
+        return! changePhotoFields id titleOpt slugOpt descrOpt hashDimsOpt
+    }
+
+
+
+let private netlifyTriggerUrl =
+    "https://api.netlify.com/build_hooks/5f048f19c1864101e8c5bd12"
+
+/// @TODO: actually use this to trigger changes – debounced though
+let triggerNetlifyBuild () =
+    Http.AsyncRequest(netlifyTriggerUrl, httpMethod="POST")

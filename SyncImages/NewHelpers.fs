@@ -3,6 +3,9 @@ module NewHelpers
 
 open S3Setup
 
+/// Temp path to uploaded file
+//type TempFilePath = TempFilePath of string
+
 /// S3 path, e.g. photos/abcdef/abcdef-1000.jpg
 type S3Path = S3Path of string
 

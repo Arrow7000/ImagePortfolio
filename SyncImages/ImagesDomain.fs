@@ -108,7 +108,7 @@ type ToUpload =
 
     member this.stream =
         let (ToUpload (localImg,size)) = this
-        resizeImg size.size localImg.FullPath
+        resizeImg size.size (TempFilePath localImg.FullPath)
 
     member this.s3Key =
         let (ToUpload (localImg,size)) = this
