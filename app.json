@@ -1,3 +1,8 @@
 {
-  "buildpacks": [{ "url": "jincod/dotnetcore" }]
+  "name": "ImagePortfolio",
+  "scripts": {},
+  "formation": { "web": { "quantity": 1 } },
+  "addons": ["heroku-postgresql"],
+  "buildpacks": [],
+  "stack": "container"
 }
