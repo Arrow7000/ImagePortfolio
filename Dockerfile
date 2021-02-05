@@ -1,5 +1,5 @@
 # FROM microsoft/dotnet AS build-env
-FROM mcr.microsoft.com/dotnet/core/sdk:latest AS build-env
+FROM mcr.microsoft.com/dotnet/sdk AS build-env
 WORKDIR /app
 
 # Copy projects
@@ -9,7 +9,7 @@ COPY ./SyncImages ./SyncImages
 RUN dotnet publish ./SyncImages -c Release -o out
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/core/sdk:latest
+FROM mcr.microsoft.com/dotnet/sdk
 WORKDIR /app
 
 COPY --from=build-env /app/out .
