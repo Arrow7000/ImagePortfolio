@@ -1,0 +1,3 @@
+{
+  "buildpacks": [{ "url": "jincod/dotnetcore" }]
+}
