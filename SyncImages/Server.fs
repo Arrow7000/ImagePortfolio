@@ -10,15 +10,14 @@ open ImageConversion
 open Api
 open DB
 open Functionality
+open Auth
+open CORS
 
-
-type EditPhotoDto =
-    { Title : string option
-      Slug : string option
-      Description : string option }
 
 
 let makeJson = Writers.setMimeType "application/json"
+
+
 
 
 let uploadImgEndpoint =
@@ -135,21 +134,30 @@ let keepAlive = Successful.OK "Stayin' alive 🎶"
 
 
 let allowCors =
-    Writers.addHeader "Access-Control-Allow-Origin" "*"
-    >=> Writers.addHeader "Access-Control-Allow-Methods" "*"
+    cors { defaultCORSConfig with
+            allowedUris = InclusiveOption.All; allowedMethods = InclusiveOption.All }
 
 let api =
     allowCors
     >=> choose
-        [ POST >=> path "/api/upload" >=> uploadImgEndpoint
+        [ POST >=> path "/auth/login" >=> logonHandler
+
+          // Non-authed paths
           GET >=> pathScan "/api/photo/slug/%s" getSinglePhotoBySlugEndpoint
-          GET >=> pathScan "/api/photo/%s" getSinglePhotoEndpoint
-          PATCH >=> pathScan "/api/photo/%s" editPhotoEndpoint
           GET >=> path "/api/photos" >=> getAllPhotosEndpoint
-          PATCH >=> path "/api/photos/reorder" >=> reorderPhotosEndpoint
-          DELETE >=> pathScan "/api/photo/%s" deletePhotoEndpoint
+          OPTIONS >=> Successful.OK "CORS is good" // not sure if this is still needed
           GET >=> path "/api/stayalive" >=> keepAlive
-          OPTIONS >=> Successful.OK "CORS is good"
+
+          // Authed paths
+          PATCH >=> path "/api/photos/reorder" >=> authRoute reorderPhotosEndpoint
+          pathStarts "/api/photo/" // this ensures that not all unauthed paths stop at the first pathScan route
+          >=> choose
+            [ POST >=> path "/api/upload" >=> authRoute uploadImgEndpoint
+              GET >=> authRoute (pathScan "/api/photo/%s" getSinglePhotoEndpoint)
+              PATCH >=> authRoute (pathScan "/api/photo/%s" editPhotoEndpoint)
+              DELETE >=> authRoute (pathScan "/api/photo/%s" deletePhotoEndpoint) ]
+
+          // Fallbacks
           RequestErrors.NOT_FOUND "Path doesn't exist" ]
     >=> makeJson
     >=> logStructured (Targets.create LogLevel.Verbose [||]) logFormatStructured

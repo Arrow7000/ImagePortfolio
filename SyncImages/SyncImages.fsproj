@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -14,6 +14,7 @@
     <Compile Include="DB.fs" />
     <Compile Include="UploadAndProcess.fs" />
     <Compile Include="Functionality.fs" />
+    <Compile Include="Auth.fs" />
     <Compile Include="Server.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -23,8 +24,10 @@
     <PackageReference Include="dotenv.net" Version="1.0.6" />
     <PackageReference Include="FSharp.Data" Version="3.3.3" />
     <PackageReference Include="FSharp.Data.GraphQL.Client" Version="1.0.7" />
+    <PackageReference Include="FSharp.Data.LiteralProviders" Version="0.3.5" />
     <PackageReference Include="FSharp.Json" Version="0.4.0" />
     <PackageReference Include="FSharp.Text.RegexProvider" Version="2.1.0" />
+    <PackageReference Include="JWT" Version="8.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
     <PackageReference Include="Suave" Version="2.6.0" />
   </ItemGroup>
