@@ -1,11 +1,18 @@
 ﻿module DB
 
 open FSharp.Data.GraphQL
+open FSharp.Data.LiteralProviders
 open System
 open ImageConversion
 
+[<Literal>]
+let adminSecret = Env.HASURA_GRAPHQL_ADMIN_SECRET.Value
+[<Literal>]
+let headerKey = "x-hasura-admin-secret"
+[<Literal>]
+let headers = headerKey + ":" + adminSecret
 
-type GraphQlClient = GraphQLProvider<"https://composed-glider-47.hasura.app/v1/graphql">
+type GraphQlClient = GraphQLProvider<"https://composed-glider-47.hasura.app/v1/graphql", httpHeaders=headers>
 
 
 
@@ -17,18 +24,6 @@ let getOptOrFailwithErrs dataOpt errs =
         failwithf "%A" errs
 
 
-type GraphResult<'D,'E> =
-    abstract member Data : 'D option
-    abstract member Errors : 'E[]
-
-let inline getOptOrFailwithErrsUnified (result : GraphResult< ^D,^E>)=
-    try
-        Option.get result.Data
-    with _ ->
-        failwithf "%A" result.Errors
-
-
-let blah = Map.ofSeq
 
 
 type Photo =
@@ -46,7 +41,7 @@ type Photo =
 
 // @TODO: mprobably need to show height and width instead of just size of the longest side
 type SizedImage =
-    { Width      : int // won't include originals
+    { Width     : int // won't include originals
       ImageUrl  : ImageUrl }
 
 
