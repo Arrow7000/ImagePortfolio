@@ -9,11 +9,7 @@
     <Compile Include="YoLo.fs" />
     <Compile Include="S3Setup.fs" />
     <Compile Include="ImageConversion.fs" />
-    <Compile Include="ImagesDomain.fs" />
-    <Compile Include="Api.fs" />
-    <Compile Include="LocalImages.fs" />
-    <Compile Include="S3Images.fs" />
-    <Compile Include="SyncImages.fs" />
+    <Compile Include="Serialisation.fs" />
     <Compile Include="NewHelpers.fs" />
     <Compile Include="DB.fs" />
     <Compile Include="UploadAndProcess.fs" />
