@@ -10,7 +10,7 @@ open DB
 
 
 
-let uploadSingleFile (S3Path s3Path) stream =
+let uploadSingleFile (S3Path s3Path) (stream : Stream) =
     let req = new PutObjectRequest()
     req.BucketName <- bucketName
     req.Key <- s3Path
@@ -21,11 +21,16 @@ let uploadSingleFile (S3Path s3Path) stream =
 
 
 let convertAndUploadSingleImg s3Path origOrSize path =
-    let sizeOpt =
-        match origOrSize with Original -> None | Size size -> Some size
+    async {
+        let sizeOpt =
+            match origOrSize with
+            |Original -> None
+            | Size size -> Some size
 
-    resizeImg sizeOpt path
-    |> uploadSingleFile s3Path
+        use! stream = resizeImg sizeOpt path
+        let! uploadResult = uploadSingleFile s3Path stream
+        return uploadResult
+    }
 
 
 
@@ -55,7 +60,7 @@ let checkIfImageExistsInS3 (S3Path s3Path) =
 
 
 
-let convertAndUploadImgIfNotAlreadyInS3 s3Path origOrSize stream =
+let convertAndUploadImgIfNotAlreadyInS3 s3Path origOrSize path =
     async {
         let! result = checkIfImageExistsInS3 s3Path
 
@@ -63,7 +68,7 @@ let convertAndUploadImgIfNotAlreadyInS3 s3Path origOrSize stream =
             match result with
             | Some _ -> Async.result None
             | None ->
-                convertAndUploadSingleImg s3Path origOrSize stream
+                convertAndUploadSingleImg s3Path origOrSize path
                 |> Async.map Some
 
         return opResult

@@ -22,60 +22,37 @@ let scaleMaxTo max (w,h) : int * int =
 
 
 let resizeImg maxSideSizeOpt (TempFilePath path) =
-    use image = Image.Load(path)
+    async {
+        use imgStream = new FileStream(path, FileMode.Open)
 
-    let (newWidth,newHeight) =
-        let w = image.Width
-        let h = image.Height
-        match maxSideSizeOpt with
-        | Some maxSideSize -> scaleMaxTo maxSideSize (w,h)
-        | None -> w, h
+        let! image,_ =
+            Image.LoadWithFormatAsync(imgStream)
+            |> Async.AwaitTask
 
-    use copy = image.Clone()
+        let (newWidth,newHeight) =
+            let w = image.Width
+            let h = image.Height
+            match maxSideSizeOpt with
+            | Some maxSideSize -> scaleMaxTo maxSideSize (w,h)
+            | None -> w, h
 
-    let operation =
-        fun (x : IImageProcessingContext<PixelFormats.Rgba32>) -> x.Resize(newWidth, newHeight) |> ignore
+        use copy = image.Clone (fun x -> x.Resize(newWidth, newHeight) |> ignore)
 
-    copy.Mutate operation
+        let stream = new MemoryStream()
+        let encoder = new Formats.Jpeg.JpegEncoder()
+        do! copy.SaveAsync(stream, encoder) |> Async.AwaitTask
 
-    let stream = new MemoryStream()
-    let encoder = new Formats.Jpeg.JpegEncoder()
-    copy.Save(stream, encoder)
-
-    stream
+        return stream
+    }
 
 
 
 let getImageDimensions (TempFilePath path) =
-    use image = Image.Load(path)
-    let w = image.Width
-    let h = image.Height
+    async {
+        let! image = Image.IdentifyAsync path |> Async.AwaitTask
 
-    { Height = h; Width = w }
+        let w = image.Width
+        let h = image.Height
 
-
-
-
-let resizeImgFromStream maxSideSizeOpt (stream : Stream) =
-    stream.Seek(0L, SeekOrigin.Begin) |> ignore // just in case
-    use image = Image.Load(stream)
-
-    let w = image.Width
-    let h = image.Height
-    let (newWidth,newHeight) =
-        match maxSideSizeOpt with
-        | Some maxSideSize -> scaleMaxTo maxSideSize (w,h)
-        | None -> w, h
-
-    use copy = image.Clone()
-
-    let operation =
-        fun (x : IImageProcessingContext<PixelFormats.Rgba32>) -> x.Resize(newWidth, newHeight) |> ignore
-
-    copy.Mutate operation
-
-    let stream = new MemoryStream()
-    let encoder = new Formats.Jpeg.JpegEncoder()
-    copy.Save(stream, encoder)
-
-    stream
+        return { Height = h; Width = w }
+    }

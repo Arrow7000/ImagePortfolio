@@ -22,12 +22,14 @@ let private hashOfPath (TempFilePath path) =
 
 
 let uploadNewImageAndPutInDb slug title description path =
-    let guid = Guid.NewGuid()
-    let hash = hashOfPath path |> OrigImgHash
-    let dimensions = getImageDimensions path
+    async {
+        let guid = Guid.NewGuid()
+        let hash = hashOfPath path |> OrigImgHash
+        let! dimensions = getImageDimensions path
 
-    uploadAllRequiredImgs hash path
-    |> Async.bind (fun _ -> addNewPhotoToDb guid hash (dimensions.Height, dimensions.Width) slug title description)
+        do! uploadAllRequiredImgs hash path
+        return! addNewPhotoToDb guid hash (dimensions.Height, dimensions.Width) slug title description
+    }
 
 
 let editImage id titleOpt slugOpt descrOpt pathOpt =
@@ -37,7 +39,7 @@ let editImage id titleOpt slugOpt descrOpt pathOpt =
             | Some path ->
                 async {
                     let hash = hashOfPath path |> OrigImgHash
-                    let dimensions = getImageDimensions path
+                    let! dimensions = getImageDimensions path
                     do! uploadAllRequiredImgs hash path
                     return Some (hash,dimensions) }
             | None -> Async.result None
@@ -48,7 +50,7 @@ let editImage id titleOpt slugOpt descrOpt pathOpt =
 
 
 let private netlifyTriggerUrl =
-    "https://api.netlify.com/build_hooks/5f048f19c1864101e8c5bd12"
+    "https://api.netlify.com/build_hooks/601d5105361c93149a828c74"
 
 /// @TODO: actually use this to trigger changes – debounced though
 let triggerNetlifyBuild () =

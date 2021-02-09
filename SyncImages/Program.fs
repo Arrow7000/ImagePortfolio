@@ -1,12 +1,6 @@
 ﻿open System
 open Suave
-open LocalImages
-open S3Images
-open Api
-open DB
-open UploadAndProcess
 open Server
-
 open dotenv.net
 
 

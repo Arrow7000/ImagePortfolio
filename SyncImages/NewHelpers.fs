@@ -19,6 +19,11 @@ type OrigOrSizeNew =
     | Original
     | Size of int
 
+type FileSize = FileSize of int64
+
+
+let jpg = "jpg"
+
 
 let makeOrigImgName name ext = sprintf "%s/%s/%s.%s" imageDir name name ext |> S3Path
 
