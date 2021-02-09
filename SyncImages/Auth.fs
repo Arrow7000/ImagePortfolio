@@ -11,7 +11,7 @@ open FSharp.Data.LiteralProviders
 open JWT.Exceptions
 
 
-let serverKey = Env.SERVER_KEY.Value
+let serverKey = YoLo.Env.varRequired "SERVER_KEY"
 let expiryInDays = 30.
 let expiry =
     DateTimeOffset.UtcNow.AddDays(expiryInDays).ToUnixTimeSeconds()

@@ -6,7 +6,13 @@ open System
 open ImageConversion
 
 [<Literal>]
-let adminSecret = Env.HASURA_GRAPHQL_ADMIN_SECRET.Value
+let adminSecret =
+#if DEBUG
+    Env.HASURA_GRAPHQL_ADMIN_SECRET.Value
+#else
+    YoLo.Env.varRequired "HASURA_GRAPHQL_ADMIN_SECRET"
+#endif
+
 [<Literal>]
 let headerKey = "x-hasura-admin-secret"
 [<Literal>]
