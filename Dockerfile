@@ -2,8 +2,6 @@
 FROM mcr.microsoft.com/dotnet/sdk AS build-env
 WORKDIR /app
 
-ENV HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_GRAPHQL_ADMIN_SECRET
-
 # Copy projects
 COPY ./SyncImages ./SyncImages
 
