@@ -3,18 +3,18 @@
 
 open System
 open Suave
-open Suave.RequestErrors
+open Suave.Operators
+open Suave.Cookie
 open JWT
 open JWT.Builder
 open JWT.Algorithms
-open FSharp.Data.LiteralProviders
 open JWT.Exceptions
 
 
 let serverKey = YoLo.Env.varRequired "SERVER_KEY"
 let expiryInDays = 30.
-let expiry =
-    DateTimeOffset.UtcNow.AddDays(expiryInDays).ToUnixTimeSeconds()
+let makeExpiry () =
+    DateTimeOffset.UtcNow.AddDays(expiryInDays)
 
 
 type Password = Password of string
@@ -57,12 +57,20 @@ let makeTokenForUser { Username = username; Role = Admin } =
         (new JwtBuilder())
             .WithAlgorithm(new HMACSHA256Algorithm()) // symmetric
             .WithSecret(serverKey)
-            .AddClaim("exp", expiry)
+            .AddClaim("exp", (makeExpiry()).ToUnixTimeSeconds())
             .AddClaim("username", username)
             .AddClaim("role", "Admin")
             .Encode()
 
     token
+
+
+
+/// In contrast to UNAUTHORIZED this one doesn't include the www-authenticate header
+let lessSuckyUnauthorized body =
+    body
+    |> UTF8.bytes
+    |> Response.response HttpCode.HTTP_401
 
 
 
@@ -79,42 +87,54 @@ let logonHandler : WebPart =
             | Some username, Some pw ->
                 match validateUser username pw with
                 | Some user ->
-                    makeTokenForUser user |> Successful.OK
+                    let token = makeTokenForUser user
+                    let cookieWp =
+                        setCookie
+                            { name = "token"
+                              value = token
+                              httpOnly = true
+                              expires = makeExpiry() |> Some
+                              path = Some "/"
+                              domain = None
+                              secure = false
+                              sameSite = None }
+
+                    cookieWp >=> Successful.OK "Token set in cookie"
                 | None ->
-                    UNAUTHORIZED "Wrong username or password"
+                    lessSuckyUnauthorized "Wrong username or password"
             | _ ->
-                UNAUTHORIZED "Need to incldue both username and password fields" )
+                lessSuckyUnauthorized "Need to incldue both username and password fields")
 
 
 
 let authRoute (authedWp : WebPart) : WebPart =
     request
-        (fun req ctx ->
-            match req.header "Authorization" with
-            | Choice1Of2 bearerToken ->
-                let token =
-                    bearerToken
-                    |> String.substring (String.length "Bearer ")
+        (fun req ->
+            match Map.tryFind "token" req.cookies with
+            | Some tokenCookie ->
+                let token = tokenCookie.value
 
                 try
                     // Do something with token if required
                     let _ =
                         (new JwtBuilder())
-                            .WithAlgorithm(new HMACSHA256Algorithm()) // symmetric
+                            .WithAlgorithm(new HMACSHA256Algorithm())
                             .WithSecret(serverKey)
                             .MustVerifySignature()
                             .Decode(token)
 
-                    authedWp ctx
+                    authedWp
 
                 with 
                 | :? TokenExpiredException ->
-                    UNAUTHORIZED "Token has expired" ctx
+                    lessSuckyUnauthorized "Token has expired"
                 | :? SignatureVerificationException ->
-                    UNAUTHORIZED "Token has invalid signature" ctx
+                    lessSuckyUnauthorized "Token has invalid signature"
                 | :? FormatException ->
-                    UNAUTHORIZED "Token is invalid" ctx
+                    lessSuckyUnauthorized "Token is invalid"
+
+            | None ->
+                 lessSuckyUnauthorized "Authorization token is required for this route")
 
 
-            | Choice2Of2 _ ->
-                RequestErrors.UNAUTHORIZED "Authorization token is required for this route" ctx)
+let checkAuthState = authRoute (Successful.OK "Logged in")

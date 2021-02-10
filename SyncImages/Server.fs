@@ -133,14 +133,11 @@ let deletePhotoEndpoint id ctx =
 let keepAlive = Successful.OK "Stayin' alive 🎶"
 
 
-let allowCors =
-    cors { defaultCORSConfig with
-            allowedUris = InclusiveOption.All; allowedMethods = InclusiveOption.All }
 
 let api =
-    allowCors
-    >=> choose
+    choose
         [ POST >=> path "/auth/login" >=> logonHandler
+          GET >=> path "/auth/check" >=> checkAuthState
 
           // Non-authed paths
           GET >=> pathScan "/api/photo/slug/%s" getSinglePhotoBySlugEndpoint
