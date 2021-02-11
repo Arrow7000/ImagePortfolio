@@ -80,7 +80,7 @@ let addNewPhotoMutation =
         }
 
         mutation AddPhoto($id: uuid!, $hash: String!, $height: Int!, $width: Int!, $slug: String, $title: String!, $description: String!) {
-          insert_photos_one(object: {id: $id, origImageHash: $hash, height: $height, width: $width, slug: $slug, title: $title, description: $description}) {
+          insert_photos_one(object: {id: $id, origImageHash: $hash, height: $height, width: $width, slug: $slug, title: $title, description: $description, ispublished: true}) {
             ... singlePhoto
           }
         }
