@@ -29,6 +29,9 @@ let convertAndUploadSingleImg s3Path origOrSize path =
 
         use! stream = resizeImg sizeOpt path
         let! uploadResult = uploadSingleFile s3Path stream
+
+        stream.Dispose()
+
         return uploadResult
     }
 
