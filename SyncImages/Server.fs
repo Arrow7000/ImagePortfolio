@@ -146,11 +146,11 @@ let api =
           GET >=> path "/api/stayalive" >=> keepAlive
 
           // Authed paths
+          POST >=> path "/api/upload" >=> authRoute uploadImgEndpoint
           PATCH >=> path "/api/photos/reorder" >=> authRoute reorderPhotosEndpoint
           pathStarts "/api/photo/" // this ensures that not all unauthed paths stop at the first pathScan route
           >=> choose
-            [ POST >=> path "/api/upload" >=> authRoute uploadImgEndpoint
-              GET >=> authRoute (pathScan "/api/photo/%s" getSinglePhotoEndpoint)
+            [ GET >=> authRoute (pathScan "/api/photo/%s" getSinglePhotoEndpoint)
               PATCH >=> authRoute (pathScan "/api/photo/%s" editPhotoEndpoint)
               DELETE >=> authRoute (pathScan "/api/photo/%s" deletePhotoEndpoint) ]
 
