@@ -6,12 +6,12 @@ open System
 open ImageConversion
 
 [<Literal>]
-let adminSecret = Env.HASURA_GRAPHQL_ADMIN_SECRET.Value
+let private adminSecret = Env.HASURA_GRAPHQL_ADMIN_SECRET.Value
 
 [<Literal>]
-let headerKey = "x-hasura-admin-secret"
+let private headerKey = "x-hasura-admin-secret"
 [<Literal>]
-let headers = headerKey + ":" + adminSecret
+let private headers = headerKey + ":" + adminSecret
 
 type GraphQlClient = GraphQLProvider<"https://composed-glider-47.hasura.app/v1/graphql", httpHeaders=headers>
 

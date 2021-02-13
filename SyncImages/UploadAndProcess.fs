@@ -15,6 +15,7 @@ let uploadSingleFile (S3Path s3Path) (stream : Stream) =
     req.BucketName <- bucketName
     req.Key <- s3Path
     req.InputStream <- stream
+    req.Headers.CacheControl <- "max-age=2592000, stale-while-revalidate=86400"
 
     client.PutObjectAsync req
     |> Async.AwaitTask
