@@ -52,6 +52,6 @@ let editImage id titleOpt slugOpt descrOpt pathOpt =
 let private netlifyTriggerUrl =
     "https://api.netlify.com/build_hooks/601d5105361c93149a828c74"
 
-/// @TODO: actually use this to trigger changes – debounced though
+/// @TODO: Make this debounced
 let triggerNetlifyBuild () =
     Http.AsyncRequest(netlifyTriggerUrl, httpMethod="POST")

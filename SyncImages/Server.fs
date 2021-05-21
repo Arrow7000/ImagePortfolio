@@ -35,6 +35,10 @@ let uploadImgEndpoint =
                         uploadNewImageAndPutInDb slug title descr (TempFilePath img.tempFilePath)
 
                     let! sizes = getSizes ()
+
+                    triggerNetlifyBuild ()
+                    |> Async.Ignore
+                    |> Async.Start
                     
                     return!
                         (makeFullPhoto sizes photo
