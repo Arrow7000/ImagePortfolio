@@ -50,7 +50,7 @@ let editImage id titleOpt slugOpt descrOpt pathOpt =
 
 
 let private netlifyTriggerUrl =
-    "https://api.netlify.com/build_hooks/601d5105361c93149a828c74"
+    "https://api.netlify.com/build_hooks/5f048f19c1864101e8c5bd12"
 
 /// @TODO: Make this debounced
 let triggerNetlifyBuild () =

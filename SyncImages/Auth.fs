@@ -26,7 +26,7 @@ type User =
       Role      : Role }
 
 
-type Session = 
+type Session =
     | NoSession
     | UserLoggedOn of User
 
