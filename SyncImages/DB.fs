@@ -25,7 +25,27 @@ let getOptOrFailwithErrs dataOpt errs =
         failwithf "%A" errs
 
 
+/// To space out requests to the DB so we don't go over the 60 reqs per minute rate limit
+let dbOpsQueue =
+    MailboxProcessor.Start
+        (fun inbox ->
+            let rec loop () =
+                async {
+                    let! msg = inbox.Receive()
+                    do! msg ()
+                    do! Async.Sleep 1000
+                    return! loop()
+                }
+            loop())
 
+let addDbReqToQueue asyncFunc =
+    dbOpsQueue.PostAndAsyncReply
+        (fun reply ->
+            fun () ->
+                async {
+                    let! response = asyncFunc
+                    reply.Reply response
+                })
 
 type Photo =
     { Id: Guid
@@ -94,6 +114,7 @@ let addNewPhotoToDb (id: Guid) (OrigImgHash hash) (height:int, width:int) (slug:
         let! result =
             addNewPhotoMutation
                 .AsyncRun(id=id.ToString(), hash=hash, height=height, width=width, slug=slug, title=title, description=description)
+                |> addDbReqToQueue
         let data =
             getOptOrFailwithErrs result.Data result.Errors
         let photo = data.Insert_photos_one |> Option.get
@@ -123,7 +144,9 @@ let getAllSizesQuery =
 
 let getSizes () =
     async {
-        let! result = getAllSizesQuery.AsyncRun()
+        let! result =
+            getAllSizesQuery.AsyncRun()
+            |> addDbReqToQueue
         let data = Option.get result.Data
 
         return seq { for size in data.Sizes -> size.Size } |> List.ofSeq
@@ -153,6 +176,7 @@ let getSinglePhotoQuery =
 let getSinglePhoto id =
     async {
         let! result = getSinglePhotoQuery.AsyncRun(id)
+                        |> addDbReqToQueue
         let data = getOptOrFailwithErrs result.Data result.Errors
         let photo = Option.get data.Photos_by_pk
 
@@ -192,6 +216,7 @@ let getSinglePhotoBySlugQuery =
 let getSinglePhotoBySlug slug =
     async {
         let! result = getSinglePhotoBySlugQuery.AsyncRun(slug)
+                        |> addDbReqToQueue
         let data = getOptOrFailwithErrs result.Data result.Errors
         match data.Photos |> List.ofArray with
         | [] -> return Error "No match for this slug"
@@ -233,6 +258,7 @@ let getAllPhotosQuery =
 let getAllPhotos () =
     async {
         let! result = getAllPhotosQuery.AsyncRun()
+                        |> addDbReqToQueue
         let data = getOptOrFailwithErrs result.Data result.Errors
 
         return
@@ -305,6 +331,7 @@ let changePhotoFields id (titleOpt : string option) (slugOpt : string option) (d
                                 width=width)
 
         let! result = editPhotoMut.AsyncRun(id=id, obj=input)
+                        |> addDbReqToQueue
         let data = getOptOrFailwithErrs result.Data result.Errors
         let photo = Option.get data.Update_photos_by_pk
         return
@@ -322,6 +349,7 @@ let private reorderPhoto id index =
     async {
         let input = new PhotoEditInput(id=id, orderindex=index)
         let! result = editPhotoMut.AsyncRun(id=id, obj=input)
+                        |> addDbReqToQueue
         let data = getOptOrFailwithErrs result.Data result.Errors
         let photo = Option.get data.Update_photos_by_pk
         return
@@ -361,6 +389,7 @@ let deletePhotoMut =
 let deletePhoto id =
     async {
         let! result = deletePhotoMut.AsyncRun(id)
+                        |> addDbReqToQueue
         let data = getOptOrFailwithErrs result.Data result.Errors
         let photo = Option.get data.Delete_photos_by_pk
         return photo.Id
