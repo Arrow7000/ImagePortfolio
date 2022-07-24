@@ -39,7 +39,7 @@ let uploadImgEndpoint =
                     triggerNetlifyBuild ()
                     |> Async.Ignore
                     |> Async.Start
-                    
+
                     return!
                         (makeFullPhoto sizes photo
                          |> serialise
@@ -128,8 +128,11 @@ let reorderPhotosEndpoint (ctx : HttpContext) =
              |> Successful.OK) ctx
     }
 
-
 let deletePhotoEndpoint id ctx =
+    triggerNetlifyBuild ()
+    |> Async.Ignore
+    |> Async.Start
+
     deletePhoto id
     |> Async.bind (fun id -> Successful.OK id ctx)
 
